@@ -1,0 +1,83 @@
+package be.kuleuven.gent.project.rest;
+
+import java.security.Key;
+import java.security.MessageDigest;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.ejb.EJB;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
+
+import model.Filiaal;
+import be.kuleuven.gent.project.ejb.UserManagementEJBLocal;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import static javax.ws.rs.core.HttpHeaders.AUTHORIZATION;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
+
+@Path("/authentication")
+public class AuthenticationService {
+	
+	@EJB
+	private UserManagementEJBLocal userEJB;
+
+    @GET
+    @Path("/login")
+    public Response authenticateUser(@QueryParam("login") String login, @QueryParam("password") String password) {
+
+        try {
+            // Authenticate the user using the credentials provided
+            Filiaal f = authenticate(login, password);
+            // Issue a token for the user
+            String token = issueToken(f);
+            // Return the token on the response
+            return Response.ok().header(AUTHORIZATION, "Bearer " + token).build();
+
+        } catch (Exception e) {
+            return Response.status(UNAUTHORIZED).build();
+        }
+
+    }
+    
+    private Filiaal authenticate(String login, String password) throws Exception {
+    	
+    	Filiaal filiaal = userEJB.findFiliaal(login);
+    	
+    	MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+		md.update(password.getBytes("UTF-8"));
+		byte[] passwordDigest = md.digest();
+		String pHash = DatatypeConverter.printBase64Binary(passwordDigest);
+		
+		if(filiaal.gethPassword().equals(pHash)){
+			return filiaal;
+		}else{
+			throw new SecurityException("Invalid user/password");
+		}
+		          
+    }
+
+    private String issueToken(Filiaal filiaal) {
+    	Date curDate = new Date();
+    	Calendar cal = Calendar.getInstance();
+        cal.setTime(curDate);
+        cal.add(Calendar.DATE, 2);
+        
+        Key key = ApplicationConfig.JWT_KEY;
+        String jwtToken = Jwts.builder()
+                .setId(filiaal.getLogin())
+                .setSubject(filiaal.getGroup())
+                .setIssuer("http://localhost:8080/RESTDemo/rest_example/")
+                .setIssuedAt(curDate)
+                .setExpiration(cal.getTime())
+                .signWith(SignatureAlgorithm.HS512, key)
+                .compact();
+
+        return jwtToken;
+
+    }
+}

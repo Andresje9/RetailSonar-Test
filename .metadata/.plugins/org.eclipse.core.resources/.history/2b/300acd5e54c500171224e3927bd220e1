@@ -1,0 +1,56 @@
+package model;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+/**
+ * The primary key class for the Filiaal database table.
+ * 
+ */
+@Embeddable
+public class FiliaalPK implements Serializable {
+	//default serial version id, required for serializable classes.
+	private static final long serialVersionUID = 1L;
+
+	private int idFiliaal;
+
+	@Column(name="Project_idProject", insertable=false, updatable=false)
+	private int project_idProject;
+
+	public FiliaalPK() {
+	}
+	public int getIdFiliaal() {
+		return this.idFiliaal;
+	}
+	public void setIdFiliaal(int idFiliaal) {
+		this.idFiliaal = idFiliaal;
+	}
+	public int getProject_idProject() {
+		return this.project_idProject;
+	}
+	public void setProject_idProject(int project_idProject) {
+		this.project_idProject = project_idProject;
+	}
+
+	public boolean equals(Object other) {
+		if (this == other) {
+			return true;
+		}
+		if (!(other instanceof FiliaalPK)) {
+			return false;
+		}
+		FiliaalPK castOther = (FiliaalPK)other;
+		return 
+			(this.idFiliaal == castOther.idFiliaal)
+			&& (this.project_idProject == castOther.project_idProject);
+	}
+
+	public int hashCode() {
+		final int prime = 31;
+		int hash = 17;
+		hash = hash * prime + this.idFiliaal;
+		hash = hash * prime + this.project_idProject;
+		
+		return hash;
+	}
+}

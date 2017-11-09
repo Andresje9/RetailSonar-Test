@@ -1,0 +1,93 @@
+package model;
+
+import java.io.Serializable;
+import javax.persistence.*;
+
+
+/**
+ * The persistent class for the Filiaal database table.
+ * 
+ */
+@Entity
+@NamedQuery(name="Filiaal.findAll", query="SELECT f FROM Filiaal f")
+public class Filiaal implements Serializable {
+	private static final long serialVersionUID = 1L;
+
+	@EmbeddedId
+	private FiliaalPK id;
+
+	@Column(name="Adres")
+	private String adres;
+
+	private int omzet;
+
+	private int oppervlakte;
+
+	//bi-directional many-to-one association to Project
+	@ManyToOne
+	@JoinColumn(name="Project_idProject")
+	private Project project;
+
+	public Filiaal() {
+	}
+
+	public FiliaalPK getId() {
+		return this.id;
+	}
+	
+	public long getLongId(){
+		return this.id.getIdFiliaal();
+	}
+
+	public void setId(FiliaalPK id) {
+		this.id = id;
+	}
+
+	public String getAdres() {
+		return this.adres;
+	}
+
+	public void setAdres(String adres) {
+		this.adres = adres;
+	}
+
+	public int getOmzet() {
+		return this.omzet;
+	}
+
+	public void setOmzet(int omzet) {
+		this.omzet = omzet;
+	}
+
+	public int getOppervlakte() {
+		return this.oppervlakte;
+	}
+
+	public void setOppervlakte(int oppervlakte) {
+		this.oppervlakte = oppervlakte;
+	}
+
+	public Project getProject() {
+		return this.project;
+	}
+
+	public void setProject(Project project) {
+		this.project = project;
+	}
+
+	public Object gethPassword() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getGroup() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public String getLogin() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

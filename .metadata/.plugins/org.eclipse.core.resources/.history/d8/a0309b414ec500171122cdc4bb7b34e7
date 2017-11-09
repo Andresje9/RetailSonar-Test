@@ -1,0 +1,61 @@
+package be.kuleuven.gent.project.jsf.controller;
+
+import java.io.Serializable;
+import java.util.List;
+
+import javax.ejb.EJB;
+import javax.faces.view.ViewScoped;
+import javax.inject.Named;
+
+import model.Filiaal;
+import be.kuleuven.gent.project.ejb.FiliaalManagementEJBLocal;
+import be.kuleuven.gent.project.ejb.UserManagementEJBLocal;
+
+@Named
+@ViewScoped
+public class FiliaalController implements Serializable{
+	private static final long serialVersionUID = -3737221385235612830L;
+	
+	@EJB
+	private FiliaalManagementEJBLocal filiaalEJB;
+	
+	@EJB
+	private UserManagementEJBLocal userEJB;
+	
+	private Filiaal filiaal = new Filiaal();
+
+	public String createFiliaal() {
+		filiaalEJB.createTask(filiaal);
+		return "tasks.faces?faces-redirect=true";
+	}
+	
+	public String activateAdmin(){
+		return "filialen.faces?faces-redirect=true";
+	}
+
+	public void findFiliaal() {
+		filiaal = filiaalEJB.findFiliaal(filiaal.getLongId());
+	}
+	
+	public String updateTask() {
+		filiaalEJB.updateFiliaal(filiaal);
+		return "tasks.faces?faces-redirect=true";
+	}
+	
+	public String fileTaskReport() {
+		filiaalEJB.fileTaskReport(filiaal);
+		return "tasks.faces?faces-redirect=true";
+	}
+
+	public List<Filiaal> findIncompletedTasks() {
+		return filiaalEJB.findIncompletedTasks();
+	}
+	
+	public Filiaal getTask() {
+		return filiaal;
+	}
+
+	public void setTask(Filiaal filiaal) {
+		this.filiaal = filiaal;
+	}
+}

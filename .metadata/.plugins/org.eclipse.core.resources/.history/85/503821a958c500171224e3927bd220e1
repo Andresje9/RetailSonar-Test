@@ -1,0 +1,25 @@
+package be.kuleuven.gent.project.ejb;
+
+import java.util.List;
+
+import javax.ejb.Local;
+
+import model.Filiaal;
+import model.Project;
+
+@Local
+public interface FiliaalManagementEJBLocal {
+
+	public void createTask(Filiaal filiaal);
+	
+	public Filiaal findFiliaal(Long id);
+	
+	public void fileTaskReport(Filiaal filiaal);
+	
+	public List<Filiaal> findIncompletedTasks();
+	
+	//public List<Filiaal> findIncompletedPatientTasks(Person person);
+	
+	public void updateFiliaal(Filiaal f);
+	
+}

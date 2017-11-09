@@ -1,0 +1,96 @@
+package be.kuleuven.gent.project.ejb;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.ejb.EJB;
+import javax.ejb.EJBContext;
+import javax.ejb.SessionContext;
+import javax.ejb.Stateless;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.SecurityContext;
+
+import be.kuleuven.gent.project.data.Person;
+import be.kuleuven.gent.project.data.Task;
+
+/**
+ * Session Bean implementation class TaskManagementEJB
+ */
+@Stateless
+public class FiliaalManagementEJB implements TaskManagementEJBLocal {
+
+	@PersistenceContext(unitName="demodb")
+	private EntityManager em;
+
+	@EJB
+	private UserManagementEJBLocal userEJB;
+
+	@Resource
+	private SessionContext ctx;
+
+	/**
+	 * Default constructor. 
+	 */
+	public TaskManagementEJB() {
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public void createTask(Task task) {
+		String login = ctx.getCallerPrincipal().getName();
+		Person p = userEJB.findPerson(login);
+
+		task.setPatient(p);
+
+		task.setCreatedOn(new Date());
+		em.persist(task);
+	}
+
+	@Override
+	public Task findTask(Long id) {
+		return em.find(Task.class, id);
+	}
+
+	@Override
+	public void fileTaskReport(Task task) {
+		String login = ctx.getCallerPrincipal().getName();
+		Person p = userEJB.findPerson(login);
+		task.setCaregiver(p);
+		task.setCompleted(true);		
+		em.merge(task);
+	}
+
+	@Override
+	public List<Task> findIncompletedTasks() {
+		Query q = em.createQuery("SELECT t FROM Task t WHERE t.completed = 0");
+		List<Task> tasks = q.getResultList();
+		return tasks;
+	}
+
+	@Override
+	public List<Task> findIncompletedPatientTasks(Person person) {
+		Person p;
+		if(person == null)
+		{
+			String login = ctx.getCallerPrincipal().getName();
+			p = userEJB.findPerson(login);
+		}else{
+			p = person;
+		}
+
+		Query q = em.createQuery("SELECT t FROM Task t WHERE t.completed = 0 AND t.patient = :idPatient");
+		q.setParameter("idPatient", p);
+		List<Task> tasks = q.getResultList();
+		return tasks;
+	}
+
+	@Override
+	public void updateTask(Task t) {
+		em.merge(t);
+	}
+
+}
